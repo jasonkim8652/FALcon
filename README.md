@@ -1,2 +1,2 @@
 # FALcon
-Fragment based drug desing using Active Learning 
+Fragment based drug design using Active Learning 
