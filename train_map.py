@@ -14,11 +14,10 @@ from libs.io_utils import smi_collate_fn
 
 from libs.models import falcon_model
 
-from libs.utils import str2bool
-from libs.utils import set_seed
-from libs.utils import set_device
-from libs.utils import evaluate_regression
-from libs.utils import heteroscedastic_loss
+from libs.al_utils import str2bool
+from libs.al_utils import set_seed
+from libs.al_utils import evaluate_regression
+from libs.al_utils import heteroscedastic_loss
 
 
 def main(args):
@@ -98,7 +97,7 @@ def main(args):
             st = time.time()
             optimizer.zero_grad()
 
-            graph1,graph2, y = batch[0], batch[1],batch[2]
+            graph1, graph2, y = batch[0], batch[1],batch[2]
             graph1 = graph1.to(device)
             graph2 = graph2.to(device)
             y = y.to(device)

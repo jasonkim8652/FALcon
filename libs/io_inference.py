@@ -84,12 +84,23 @@ def get_molecular_graph(smi):
 
 
 def smi_collate_fn(batch):
-	graph_list = []
-	for i, smi in enumerate(batch):
-		graph = get_molecular_graph(smi)
-		graph_list.append(graph)
-	graph_list = dgl.batch(graph_list)
-	return graph_list
+    graph_list1 = []
+    graph_list2 = []
+    label_list = []
+    for item in batch:
+        smi_1 = item[0]
+        smi_2 = item[1]
+        label = item[2]
+
+        graph1 = get_molecular_graph(smi_1)
+        graph2 = get_molecular_graph(smi_2)
+        graph_list1.append(graph1)
+        graph_list2.append(graph2)
+        label_list.append(label)
+    graph_list1 = dgl.batch(graph_list1)
+    graph_list2 = dgl.batch(graph_list2)
+    label_list = torch.tensor(label_list, dtype=torch.float64)
+    return graph_list1,graph_list2, label_list
 
 
 def load_collate_fn(batch):
@@ -135,20 +146,21 @@ def attn_collate_fn(batch):
 
 
 class SmiDataset(torch.utils.data.Dataset):
-	def __init__(
-			self, 
-			smi_list
-		):
-		self.smi_list = smi_list
+    def __init__(
+            self, 
+            smi_list1,
+            smi_list2
+        ):
+        self.smi_list = smi_list1
+        self.smi_list2 = smi_list2
+    def __len__(self):
+        return len(self.smi_list)
 	
-	def __len__(self):
-		return len(self.smi_list)
-	
-	def __getitem__(
-			self, 
-			idx
-		):
-		return self.smi_list[idx]
+    def __getitem__(
+            self, 
+            idx
+        ):
+        return self.smi_list1[idx], self.smi_list2[idx]
 
 
 class MyDataset(torch.utils.data.Dataset):

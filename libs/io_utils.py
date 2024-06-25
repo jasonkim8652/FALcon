@@ -85,18 +85,23 @@ def get_molecular_graph(smi):
 
 
 def smi_collate_fn(batch):
-	graph_list = []
-	label_list = []
-	for item in batch:
-		smi_ = item[0]
-		label = item[1]
+    graph_list1 = []
+    graph_list2 = []
+    label_list = []
+    for item in batch:
+        smi_1 = item[0]
+        smi_2 = item[1]
+        label = item[2]
 
-		graph = get_molecular_graph(smi_)
-		graph_list.append(graph)
-		label_list.append(label)
-	graph_list = dgl.batch(graph_list)
-	label_list = torch.tensor(label_list, dtype=torch.float64)
-	return graph_list,label_list
+        graph1 = get_molecular_graph(smi_1)
+        graph2 = get_molecular_graph(smi_2)
+        graph_list1.append(graph1)
+        graph_list2.append(graph2)
+        label_list.append(label)
+    graph_list1 = dgl.batch(graph_list1)
+    graph_list2 = dgl.batch(graph_list2)
+    label_list = torch.tensor(label_list, dtype=torch.float64)
+    return graph_list1,graph_list2, label_list
 
 def load_collate_fn(batch):
 	graph_list = []
@@ -127,7 +132,7 @@ def get_dataset(
 		method,
 	):
 	data_dir = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 	)
 	if step == 0:
@@ -159,8 +164,8 @@ class MyDataset(torch.utils.data.Dataset):
 			self, 
 			splitted_set
 		):
-		self.smi_list = list(splitted_set['SMILES'])
-		#self.id_list = list(splitted_set['ID'])
+		self.smi_list1 = list(splitted_set['SMILES_BB1'])
+		self.smi_list2 = list(splitted_set['SMILES_BB2'])
 		self.label_list = list(splitted_set['Dock'])
 	
 	def __len__(self):
@@ -170,7 +175,7 @@ class MyDataset(torch.utils.data.Dataset):
 			self, 
 			idx
 		):
-		return self.smi_list[idx], self.label_list[idx]
+		return self.smi_list1[idx], self.smi_list2[idx], self.label_list[idx]
 
 
 def debugging():

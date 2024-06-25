@@ -21,85 +21,83 @@ from libs.utils import set_device
 
 
 def main(args):
-	# Set random seeds and device
-	set_seed(seed=1234)
-	device=torch.device('cpu')
+    # Set random seeds and device
+    set_seed(seed=1234)
+    device=torch.device('cpu')
 
-	# Prepare datasets and dataloaders
-	remain_path = ''
-	if args.step == 0:
-		remain_path = os.path.join(
-			'/home/jasonkjh/works/projects/active_learning',
-			'data',
-			args.title + '_seed'+str(args.seed)+'_step0_remain.csv'
-		)
-	else: 
-		remain_path = os.path.join(
-			'/home/jasonkjh/works/projects/active_learning',
-			'data',
-			args.title + '_seed'+str(args.seed)+'_step'+str(args.step)+'_'+args.method+'_remain.csv'
-		)
-	df = pd.read_csv(remain_path)
-	smi_list = list(df['SMILES'])
-	test_ds = SmiDataset(smi_list=smi_list)
-	test_loader = DataLoader(
-		dataset=test_ds,
-		batch_size=args.batch_size,
-		shuffle=False,
-		num_workers=args.num_workers,
-		collate_fn=collate_fn
-	)
+    # Prepare datasets and dataloaders
+    remain_path = ''
+    if args.step == 0:
+        remain_path = os.path.join(
+            '/home/jasonkjh/asZXCworks/projects/FALcon',
+            'data',
+            args.title + '_seed'+str(args.seed)+'_step0_remain.csv'
+        )
+    else: 
+        remain_path = os.path.join(
+            '/home/jasonkjh/works/projects/FALcon',
+            'data',
+            args.title + '_seed'+str(args.seed)+'_step'+str(args.step)+'_'+args.method+'_remain.csv'
+        )
+    df = pd.read_csv(remain_path)
+    smi_list = list(df['SMILES'])
+    test_ds = SmiDataset(smi_list=smi_list)
+    test_loader = DataLoader(
+        dataset=test_ds,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+        collate_fn=collate_fn
+    )
 
-	# Construct model and load trained parameters if it is possible
-	model = MyModel(
-		model_type=args.model_type,
-		num_layers=args.num_layers,
-		hidden_dim=args.hidden_dim,
-		readout=args.readout,
-		dropout_prob=args.dropout_prob,
-		out_dim=args.out_dim,
-		multiply_num_pma=args.multiply_num_pma,
-	)
-	model = model.to(device)
+    # Construct model and load trained parameters if it is possible
+    model = MyModel(
+        model_type=args.model_type,
+        num_layers=args.num_layers,
+        hidden_dim=args.hidden_dim,
+        readout=args.readout,
+        dropout_prob=args.dropout_prob,
+        out_dim=args.out_dim,
+        multiply_num_pma=args.multiply_num_pma,
+    )
+    model = model.to(device)
 
-	save_path = '/home/jasonkjh/works/projects/active_learning/save/' 
-	save_path += str(args.title)
-	save_path += '_' + str(args.seed)
-	save_path += '_' + str(args.step)
-	if args.step != 0:
-		save_path += '_' + str(args.method)
-	save_path += '.pth'
-	ckpt = torch.load(save_path, map_location=device)
-	model.load_state_dict(ckpt['model_state_dict'])
+    save_path = '/home/jasonkjh/works/projects/active_learning/save/' 
+    save_path += str(args.title)
+    save_path += '_' + str(args.seed)
+    save_path += '_' + str(args.step)
+    if args.step != 0:
+        save_path += '_' + str(args.method)
+    save_path += '.pth'
+    ckpt = torch.load(save_path, map_location=device)
+    model.load_state_dict(ckpt['model_state_dict'])
 
-	print ("Hello")
-	model.eval()
-	with torch.no_grad():
-		# Test
-		pred_list = []
-		ale_unc_list = []
-		epi_unc_list = []
-		for i, graph in enumerate(test_loader):
-			st = time.time()
-			graph = graph.to(device)
-			feat = graph.ndata['h']
-			feat = feat.to(device)
-			pred, alpha = model(graph, feat, training=False)
+    print ("Hello")
+    model.eval()
+    with torch.no_grad():
+        # Test
+        pred_list = []
+        ale_unc_list = []
+        for i, graph1, graph2 in enumerate(test_loader):
+            st = time.time()
+            graph1 = graph1.to(device)
+            graph2 = graph2.to(device)
+            pred, alpha = model(graph1, graph2, training=False)
 
-			pred_list.append(pred[:,0])
-			ale_unc_list.append(torch.exp(pred[:,1]))
-			print (i, "/", len(test_loader))
+            pred_list.append(pred[:,0])
+            ale_unc_list.append(torch.exp(pred[:,1]))
+            print (i, "/", len(test_loader))
 
-	pred_list = torch.cat(pred_list, dim=0).detach().cpu().numpy()
-	ale_unc_list = torch.cat(ale_unc_list, dim=0).detach().cpu().numpy()
-	ale_unc_list = np.sqrt(ale_unc_list)
+    pred_list = torch.cat(pred_list, dim=0).detach().cpu().numpy()
+    ale_unc_list = torch.cat(ale_unc_list, dim=0).detach().cpu().numpy()
+    ale_unc_list = np.sqrt(ale_unc_list)
 
-	pred_list = list(np.around(pred_list, 3))
-	ale_unc_list = list(np.around(ale_unc_list, 3))
+    pred_list = list(np.around(pred_list, 3))
+    ale_unc_list = list(np.around(ale_unc_list, 3))
 
-	df['Pred'] = pred_list
-	df['Unc'] = ale_unc_list
-	df.to_csv(remain_path, index=False)
+    df['Pred'] = pred_list
+    df['Unc'] = ale_unc_list
+    df.to_csv(remain_path, index=False)
 
 	
 
