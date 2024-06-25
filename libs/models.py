@@ -89,10 +89,10 @@ class MyModel(nn.Module):
     def forward(
             self, 
             graph,
-            feat,
             eweight=None,
             training=False,
         ):
+        feat = graph.ndata['h']
         h = self.embedding_node(feat.float())
         if eweight is None:
             eweight=graph.edata['e_ij']
@@ -219,9 +219,9 @@ class falcon_model(nn.Module):
             apply_sigmoid=False,
         )
         
-    def forward(self, graph, feat, eweight=None, training=False):
-        out1, _ = self.My_model1(graph, feat, eweight, training)
-        out2, _ = self.My_model2(graph, feat, eweight, training)
+    def forward(self, graph1, graph2, eweight=None, training=False):
+        out1, _ = self.My_model1(graph1, eweight, training)
+        out2, _ = self.My_model2(graph2, eweight, training)
         out = torch.cat([out1, out2], dim=1)
         out = self.MLP_layer(out, training)
         return out
