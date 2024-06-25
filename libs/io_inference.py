@@ -86,21 +86,17 @@ def get_molecular_graph(smi):
 def smi_collate_fn(batch):
     graph_list1 = []
     graph_list2 = []
-    label_list = []
     for item in batch:
         smi_1 = item[0]
         smi_2 = item[1]
-        label = item[2]
 
         graph1 = get_molecular_graph(smi_1)
         graph2 = get_molecular_graph(smi_2)
         graph_list1.append(graph1)
         graph_list2.append(graph2)
-        label_list.append(label)
     graph_list1 = dgl.batch(graph_list1)
     graph_list2 = dgl.batch(graph_list2)
-    label_list = torch.tensor(label_list, dtype=torch.float64)
-    return graph_list1,graph_list2, label_list
+    return graph_list1, graph_list2
 
 
 def load_collate_fn(batch):
@@ -151,10 +147,10 @@ class SmiDataset(torch.utils.data.Dataset):
             smi_list1,
             smi_list2
         ):
-        self.smi_list = smi_list1
+        self.smi_list1 = smi_list1
         self.smi_list2 = smi_list2
     def __len__(self):
-        return len(self.smi_list)
+        return len(self.smi_list1)
 	
     def __getitem__(
             self, 

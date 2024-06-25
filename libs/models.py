@@ -179,6 +179,7 @@ class falcon_model(nn.Module):
             apply_sigmoid=False,
             multiply_num_pma=False,
     ):
+        super().__init__()
         self.My_model1 = MyModel(
             model_type=model_type,
             num_layers=num_layers,
@@ -214,7 +215,7 @@ class falcon_model(nn.Module):
             inp_dim=out_dim*2,
             hidden_dim=1,
             dropout_prob=0.2,
-            out_dim=1,
+            out_dim=2,
             act=F.relu,
             apply_sigmoid=False,
         )
@@ -224,5 +225,5 @@ class falcon_model(nn.Module):
         out2, _ = self.My_model2(graph2, eweight, training)
         out = torch.cat([out1, out2], dim=1)
         out = self.MLP_layer(out, training)
-        return out
+        return out, _
         

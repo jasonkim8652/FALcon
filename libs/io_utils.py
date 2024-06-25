@@ -169,7 +169,7 @@ class MyDataset(torch.utils.data.Dataset):
 		self.label_list = list(splitted_set['Dock'])
 	
 	def __len__(self):
-		return len(self.smi_list)
+		return len(self.smi_list1)
 	
 	def __getitem__(
 			self, 

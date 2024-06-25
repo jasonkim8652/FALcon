@@ -2,22 +2,19 @@ import os
 import time
 import argparse
 
-from functools import partial
 
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from libs.io_inference import SmiDataset
 from libs.io_inference import smi_collate_fn as collate_fn
 
-from libs.models import MyModel
+from libs.models import falcon_model
 
-from libs.utils import str2bool
-from libs.utils import set_seed
-from libs.utils import set_device
+from libs.al_utils import str2bool
+from libs.al_utils import set_seed
 
 
 def main(args):
@@ -29,7 +26,7 @@ def main(args):
     remain_path = ''
     if args.step == 0:
         remain_path = os.path.join(
-            '/home/jasonkjh/asZXCworks/projects/FALcon',
+            '/home/jasonkjh/works/projects/FALcon',
             'data',
             args.title + '_seed'+str(args.seed)+'_step0_remain.csv'
         )
@@ -40,8 +37,9 @@ def main(args):
             args.title + '_seed'+str(args.seed)+'_step'+str(args.step)+'_'+args.method+'_remain.csv'
         )
     df = pd.read_csv(remain_path)
-    smi_list = list(df['SMILES'])
-    test_ds = SmiDataset(smi_list=smi_list)
+    smi_list1 = list(df['SMILES_BB1'])
+    smi_list2 = list(df['SMILES_BB2'])
+    test_ds = SmiDataset(smi_list1=smi_list1, smi_list2=smi_list2)
     test_loader = DataLoader(
         dataset=test_ds,
         batch_size=args.batch_size,
@@ -51,7 +49,7 @@ def main(args):
     )
 
     # Construct model and load trained parameters if it is possible
-    model = MyModel(
+    model = falcon_model(
         model_type=args.model_type,
         num_layers=args.num_layers,
         hidden_dim=args.hidden_dim,
@@ -62,7 +60,7 @@ def main(args):
     )
     model = model.to(device)
 
-    save_path = '/home/jasonkjh/works/projects/active_learning/save/' 
+    save_path = '/home/jasonkjh/works/projects/FALcon/save/' 
     save_path += str(args.title)
     save_path += '_' + str(args.seed)
     save_path += '_' + str(args.step)
@@ -78,8 +76,10 @@ def main(args):
         # Test
         pred_list = []
         ale_unc_list = []
-        for i, graph1, graph2 in enumerate(test_loader):
+        for i, batch in enumerate(test_loader):
             st = time.time()
+            graph1 = batch[0]
+            graph2 = batch[1]
             graph1 = graph1.to(device)
             graph2 = graph2.to(device)
             pred, alpha = model(graph1, graph2, training=False)
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
 	parser.add_argument('--use_gpu', type=str2bool, default=True, 
 						help='whether to use GPU device')
-	parser.add_argument('--model_type', type=str, default='gat', 
+	parser.add_argument('--model_type', type=str, default='gine', 
 						help='Type of GNN model, Options: gcn, gin, gin_e, gat, ggnn')
 	parser.add_argument('--num_layers', type=int, default=4,
 						help='Number of GIN layers for ligand featurization')

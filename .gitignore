@@ -1,7 +1,9 @@
 data/
 slurm/
+save/
 *.csv
 *.png
 *.sh
 *.out
 *.err
+*.pyc

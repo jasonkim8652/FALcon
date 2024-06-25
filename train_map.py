@@ -211,7 +211,7 @@ def main(args):
                 "R2:", round(train_metrics[2], 3), "\t", round(valid_metrics[2], 3), "\t", round(test_metrics[2], 3))
 		'''
 	
-    save_path = '/home/jasonkjh/works/projects/active_learning/save/' 
+    save_path = '/home/jasonkjh/works/projects/FALcon/save/' 
     save_path += str(args.title)
     save_path += '_' + str(args.seed)
     save_path += '_' + str(args.step)
@@ -334,7 +334,7 @@ if __name__ == '__main__':
 
 	parser.add_argument('--optimizer', type=str, default='adam', 
 						help='Options: adam, sgd, ...')
-	parser.add_argument('--num_epoches', type=int, default=1,
+	parser.add_argument('--num_epoches', type=int, default=150,
 						help='Number of training epoches')
 	parser.add_argument('--num_workers', type=int, default=8,
 						help='Number of workers to run dataloaders')
