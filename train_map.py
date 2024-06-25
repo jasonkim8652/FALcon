@@ -334,9 +334,9 @@ if __name__ == '__main__':
 
 	parser.add_argument('--optimizer', type=str, default='adam', 
 						help='Options: adam, sgd, ...')
-	parser.add_argument('--num_epoches', type=int, default=150,
+	parser.add_argument('--num_epoches', type=int, default=1,
 						help='Number of training epoches')
-	parser.add_argument('--num_workers', type=int, default=6,
+	parser.add_argument('--num_workers', type=int, default=8,
 						help='Number of workers to run dataloaders')
 	parser.add_argument('--batch_size', type=int, default=250,
 						help='Number of samples in a single batch')
