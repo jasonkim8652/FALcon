@@ -32,28 +32,28 @@ def edit_initial_dataset(
 	df_remain = df_.iloc[idx_remain]
 
 	train_path = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 		title + '_seed'+str(seed)+'_step0_train.csv'
 	)
 	df_train.to_csv(train_path, index=False)
 
 	valid_path = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 		title + '_seed'+str(seed)+'_step0_valid.csv'
 	)
 	df_valid.to_csv(valid_path, index=False)
 
 	test_path = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 		title + '_seed'+str(seed)+'_step0_test.csv'
 	)
 	df_test.to_csv(test_path, index=False)
 
 	remain_path = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 		title + '_seed'+str(seed)+'_step0_remain.csv'
 	)
@@ -69,23 +69,23 @@ def edit_active_learning_dataet(
 	):
 	if step == 1:
 		train_path = os.path.join(
-			'/home/jasonkjh/works/projects/active_learning',
+			'/home/jasonkjh/works/projects/FALcon',
 			'data',
 			title + '_seed'+str(seed)+'_step'+str(step-1)+'_train.csv'
 		)
 		remain_path = os.path.join(
-			'/home/jasonkjh/works/projects/active_learning',
+			'/home/jasonkjh/works/projects/FALcon',
 			'data',
 			title + '_seed'+str(seed)+'_step'+str(step-1)+'_remain.csv'
 		)
 	else:
 		train_path = os.path.join(
-			'/home/jasonkjh/works/projects/active_learning',
+			'/home/jasonkjh/works/projects/FALcon',
 			'data',
 			title + '_seed'+str(seed)+'_step'+str(step-1)+'_'+method+'_train.csv'
 		)
 		remain_path = os.path.join(
-			'/home/jasonkjh/works/projects/active_learning',
+			'/home/jasonkjh/works/projects/FALcon',
 			'data',
 			title + '_seed'+str(seed)+'_step'+str(step-1)+'_'+method+'_remain.csv'
 		)
@@ -104,20 +104,20 @@ def edit_active_learning_dataet(
 		df_remain = df_remain.sort_values(by=['Unc'], ascending=False)
 	
 	df_sampled = df_remain[:num_train]
-	df_sampled = df_sampled[['ID','SMILES','Dock']]
+	df_sampled = df_sampled[['ID','SMILES','SMILES_BB1','SMILES_BB2','Dock']]
 	df_train = pd.concat([df_train, df_sampled])
 
 	df_remain = df_remain[num_train:]
-	df_remain = df_remain[['ID','SMILES','Dock']]
+	df_remain = df_remain[['ID','SMILES','SMILES_BB1','SMILES_BB2','Dock']]
 
 	train_path = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 		title + '_seed'+str(seed)+'_step'+str(step)+'_'+method+'_train.csv'
 	)
 	df_train.to_csv(train_path, index=False)
 	remain_path = os.path.join(
-		'/home/jasonkjh/works/projects/active_learning',
+		'/home/jasonkjh/works/projects/FALcon',
 		'data',
 		title + '_seed'+str(seed)+'_step'+str(step)+'_'+method+'_remain.csv'
 	)
